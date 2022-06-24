@@ -1,18 +1,14 @@
 from django.db import models
 
-# Create your models here.
-
-class Participant(models.Model):
-    stdid = models.CharField(max_length=20, primary_key=True, unique=True)
-    name = models.CharField(max_length=100)
-    email = models.EmailField()
-    team = models.ForeignKey('teams.Team', on_delete=models.CASCADE)
-class Team(models.Model):
-    name = models.CharField(max_length=100)
-    balance = models.IntegerField(default=0)
-    burned_questions = models.ManyToManyField('questions.Question', blank=True)
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
+class Question(models.Model):
+    DIFFICULTY_CHOISES = (
+        ('E', 'Easy'),
+        ('M', 'Medium'),
+        ('H', 'Hard'),
+    )
+    question_id = models.CharField(max_length=30, unique=True, blank=False, primary_key=True)
+    question_text = models.CharField(max_length=200, blank=True)
+    difficulty = models.CharField(choices=DIFFICULTY_CHOISES, max_length=2, blank=False)
 
     def __str__(self):
-        return self.name
+        return self.question_id
