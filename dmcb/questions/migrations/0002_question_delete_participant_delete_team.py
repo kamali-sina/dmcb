@@ -6,22 +6,33 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('questions', '0001_initial'),
+        ("questions", "0001_initial"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='Question',
+            name="Question",
             fields=[
-                ('question_id', models.CharField(max_length=30, primary_key=True, serialize=False, unique=True)),
-                ('question_text', models.CharField(blank=True, max_length=200)),
-                ('difficulty', models.CharField(choices=[('E', 'Easy'), ('M', 'Medium'), ('H', 'Hard')], max_length=2)),
+                (
+                    "question_id",
+                    models.CharField(
+                        max_length=30, primary_key=True, serialize=False, unique=True
+                    ),
+                ),
+                ("question_text", models.CharField(blank=True, max_length=200)),
+                (
+                    "difficulty",
+                    models.CharField(
+                        choices=[("E", "Easy"), ("M", "Medium"), ("H", "Hard")],
+                        max_length=2,
+                    ),
+                ),
             ],
         ),
         migrations.DeleteModel(
-            name='Participant',
+            name="Participant",
         ),
         migrations.DeleteModel(
-            name='Team',
+            name="Team",
         ),
     ]

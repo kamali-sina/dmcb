@@ -7,16 +7,26 @@ class Migration(migrations.Migration):
 
     initial = True
 
-    dependencies = [
-    ]
+    dependencies = []
 
     operations = [
         migrations.CreateModel(
-            name='Question',
+            name="Question",
             fields=[
-                ('question_id', models.CharField(max_length=30, primary_key=True, serialize=False, unique=True)),
-                ('question_text', models.CharField(blank=True, max_length=200)),
-                ('difficulty', models.CharField(choices=[('E', 'Easy'), ('M', 'Medium'), ('H', 'Hard')], max_length=2)),
+                (
+                    "question_id",
+                    models.CharField(
+                        max_length=30, primary_key=True, serialize=False, unique=True
+                    ),
+                ),
+                ("question_text", models.CharField(blank=True, max_length=200)),
+                (
+                    "difficulty",
+                    models.CharField(
+                        choices=[("E", "Easy"), ("M", "Medium"), ("H", "Hard")],
+                        max_length=2,
+                    ),
+                ),
             ],
         ),
     ]
