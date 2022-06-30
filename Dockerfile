@@ -1,5 +1,5 @@
 # base image  
-FROM m.docker-registry.ir/python:3.8-slim-buster
+FROM python:3.8-slim-buster
 ENV DockerHOME=/home/app/webapp
 RUN mkdir -p $DockerHOME
 
