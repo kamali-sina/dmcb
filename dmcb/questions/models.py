@@ -6,6 +6,7 @@ class Question(models.Model):
         ("E", "Easy"),
         ("M", "Medium"),
         ("H", "Hard"),
+        ("A", "Alan Turing"),
     )
     question_id = models.CharField(
         max_length=30, unique=True, blank=False, primary_key=True
