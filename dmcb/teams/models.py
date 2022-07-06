@@ -4,6 +4,7 @@ from questions.models import Question
 
 
 class Team(models.Model):
+    id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=100)
     balance = models.IntegerField(default=0)
     burned_questions = models.ManyToManyField(Question, blank=True)
