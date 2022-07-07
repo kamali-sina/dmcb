@@ -111,3 +111,36 @@ class SolveView(View):
             team = participant.team
             message = self.handle_solve(team, form)
         return HttpResponse(message)
+
+class TransferView(View):
+    def get(self, request):
+        form = TransferForm()
+        context = {
+            'form': form,
+        }
+        return render(request, 'template.html', context)
+
+    def handle_transfer(self, from_team, to_team, form):
+        message = 'Success'
+        amount = form.cleaned_data['amount']
+        if from_team.balance >= amount:
+            from_team -= amount
+            to_team += amount
+            from_team.save()
+            to_team.save()
+        else:
+            message = 'Insufficent balance'
+        return message
+    
+    def post(self, request):
+        form = SolveForm(request.POST)
+        message = 'Not Valid'
+        if form.is_valid():
+            from_id = form.cleaned_data['from_id']
+            from_participant = Participant.objects.get(stdid=from_id)
+            from_team = from_participant.team
+            to_id = form.cleaned_data['to_id']
+            to_participant = Participant.objects.get(stdid=to_id)
+            to_team = to_participant.team
+            message = self.handle_transfer(from_team, to_team, form)
+        return HttpResponse(message)
