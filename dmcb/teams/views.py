@@ -3,10 +3,10 @@ from django.shortcuts import render
 from django.http import HttpResponse
 from django.views import View
 
-from models import Team, Participant
+from .models import Team, Participant
 from questions.models import Question
 
-from forms import *
+from .forms import *
 
 from questions.consts import *
 

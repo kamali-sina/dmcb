@@ -1,6 +1,6 @@
 from django.urls import path
 
-from views import *
+from teams.views import *
 
 urlpatterns = [
     path('buy/', BuyView.as_view(), name='buy'),
