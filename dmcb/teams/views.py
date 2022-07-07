@@ -1,4 +1,3 @@
-from email import message
 from django.shortcuts import render
 from django.http import HttpResponse
 from django.views import View
@@ -16,12 +15,16 @@ class BuyView(View):
         context = {
             'form': form,
         }
-        return render(request, 'template.html', context)
+        return render(request, 'form.html', context)
 
     def handle_buy(self, team, form):
         message = 'Success'
         question_id = form.cleaned_data['question_id']
-        question = Question.objects.get(question_id=question_id)
+        if Question.objects.filter(question_id=question_id).exists():
+            question = Question.objects.get(question_id=question_id)
+        else:
+            question = Question(question_id=question_id, difficulty=question_id[0])
+            question.save()
         if team.balance >= INITIAL_PRICES[question.difficulty]:
             team.balance -= INITIAL_PRICES[question.difficulty]
             team.save()
@@ -37,8 +40,10 @@ class BuyView(View):
             participant = Participant.objects.get(stdid=stdid)
             team = participant.team
             message = self.handle_buy(team, form)
-        return HttpResponse(message)
-        
+        context = {
+            'message': message
+        }
+        return render(request, 'result.html', context)
 
 class SellView(View):
     def get(self, request):
@@ -46,7 +51,7 @@ class SellView(View):
         context = {
             'form': form,
         }
-        return render(request, 'template.html', context)
+        return render(request, 'form.html', context)
 
     def calculate_payout(self, question):
         return int(INITIAL_PRICES[question.difficulty] * SELL_COEF)
@@ -54,7 +59,11 @@ class SellView(View):
 
     def handle_sell(self, team, form):
         question_id = form.cleaned_data['question_id']
-        question = Question.objects.get(question_id=question_id)
+        if Question.objects.filter(question_id=question_id).exists():
+            question = Question.objects.get(question_id=question_id)
+        else:
+            question = Question(question_id=question_id, difficulty=question_id[0])
+            question.save()
         team.balance += self.calculate_payout(question)
         team.burned_questions.add(question)
         question.sell_count += 1
@@ -70,7 +79,10 @@ class SellView(View):
             participant = Participant.objects.get(stdid=stdid)
             team = participant.team
             message = self.handle_sell(team, form)
-        return HttpResponse(message)
+        context = {
+            'message': message
+        }
+        return render(request, 'result.html', context)
 
 class SolveView(View):
     def get(self, request):
@@ -78,7 +90,7 @@ class SolveView(View):
         context = {
             'form': form,
         }
-        return render(request, 'template.html', context)
+        return render(request, 'form.html', context)
 
     def calculate_payout(self, question):
         coef = COEFS[question.difficulty]
@@ -91,8 +103,12 @@ class SolveView(View):
     def handle_solve(self, team, form):
         message = 'Success'
         question_id = form.cleaned_data['question_id']
-        question = Question.objects.get(question_id=question_id)
-        if not question in team.burned_questions:
+        if Question.objects.filter(question_id=question_id).exists():
+            question = Question.objects.get(question_id=question_id)
+        else:
+            question = Question(question_id=question_id, difficulty=question_id[0])
+            question.save()
+        if not question in team.burned_questions.all():
             team.balance += self.calculate_payout(question)
             question.solve_count += 1
             team.burned_questions.add(question)
@@ -110,7 +126,10 @@ class SolveView(View):
             participant = Participant.objects.get(stdid=stdid)
             team = participant.team
             message = self.handle_solve(team, form)
-        return HttpResponse(message)
+        context = {
+            'message': message
+        }
+        return render(request, 'result.html', context)
 
 class TransferView(View):
     def get(self, request):
@@ -118,14 +137,14 @@ class TransferView(View):
         context = {
             'form': form,
         }
-        return render(request, 'template.html', context)
+        return render(request, 'form.html', context)
 
     def handle_transfer(self, from_team, to_team, form):
         message = 'Success'
         amount = form.cleaned_data['amount']
         if from_team.balance >= amount:
-            from_team -= amount
-            to_team += amount
+            from_team.balance -= amount
+            to_team.balance += amount
             from_team.save()
             to_team.save()
         else:
@@ -133,7 +152,7 @@ class TransferView(View):
         return message
     
     def post(self, request):
-        form = SolveForm(request.POST)
+        form = TransferForm(request.POST)
         message = 'Not Valid'
         if form.is_valid():
             from_id = form.cleaned_data['from_id']
@@ -143,4 +162,7 @@ class TransferView(View):
             to_participant = Participant.objects.get(stdid=to_id)
             to_team = to_participant.team
             message = self.handle_transfer(from_team, to_team, form)
-        return HttpResponse(message)
+        context = {
+            'message': message
+        }
+        return render(request, 'result.html', context)
