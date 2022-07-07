@@ -14,6 +14,7 @@ class BuyView(View):
         form = BuyForm()
         context = {
             'form': form,
+            'page_title': 'Buy Question',
         }
         return render(request, 'form.html', context)
 
@@ -50,6 +51,7 @@ class SellView(View):
         form = SellForm()
         context = {
             'form': form,
+            'page_title': 'Sell Question',
         }
         return render(request, 'form.html', context)
 
@@ -89,6 +91,7 @@ class SolveView(View):
         form = SolveForm()
         context = {
             'form': form,
+            'page_title': 'Solve Question',
         }
         return render(request, 'form.html', context)
 
@@ -136,6 +139,7 @@ class TransferView(View):
         form = TransferForm()
         context = {
             'form': form,
+            'page_title': 'Transfer Money',
         }
         return render(request, 'form.html', context)
 
