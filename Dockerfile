@@ -15,4 +15,4 @@ RUN pip install -r requirements.txt
 
 EXPOSE 8000
 
-CMD python dmcb/manage.py runserver
+CMD python3 dmcb/manage.py runserver 0.0.0.0:8000
