@@ -167,3 +167,4 @@ class TransferView(View):
             'message': message
         }
         return render(request, 'result.html', context)
+        
