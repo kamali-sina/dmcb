@@ -19,18 +19,12 @@ class BuyView(View):
         return render(request, 'form.html', context)
 
     def handle_buy(self, team, form):
-        message = 'Success'
-        question_id = form.cleaned_data['question_id']
-        if Question.objects.filter(question_id=question_id).exists():
-            question = Question.objects.get(question_id=question_id)
-        else:
-            question = Question(question_id=question_id, difficulty=question_id[0])
-            question.save()
-        if team.balance >= INITIAL_PRICES[question.difficulty]:
-            team.balance -= INITIAL_PRICES[question.difficulty]
+        message = 'Success, Go get a random question of the difficulty you selected.'
+        if team.balance >= INITIAL_PRICES[form.cleaned_data['question_difficulty']]:
+            team.balance -= INITIAL_PRICES[form.cleaned_data['question_difficulty']]
             team.save()
         else:
-            message = 'Insufficent balance'
+            message = 'Error: Insufficent balance'
         return message
     
     def post(self, request):
@@ -64,14 +58,15 @@ class SellView(View):
         if Question.objects.filter(question_id=question_id).exists():
             question = Question.objects.get(question_id=question_id)
         else:
-            question = Question(question_id=question_id, difficulty=question_id[0])
+            question = Question(question_id=question_id, difficulty=question_id[0].upper())
             question.save()
-        team.balance += self.calculate_payout(question)
+        payout = self.calculate_payout(question)
+        team.balance += payout
         team.burned_questions.add(question)
         question.sell_count += 1
         question.save()
         team.save()
-        return 'Success'
+        return 'Success, you earned {}'.format(payout)
     
     def post(self, request):
         form = SellForm(request.POST)
@@ -109,14 +104,16 @@ class SolveView(View):
         if Question.objects.filter(question_id=question_id).exists():
             question = Question.objects.get(question_id=question_id)
         else:
-            question = Question(question_id=question_id, difficulty=question_id[0])
+            question = Question(question_id=question_id, difficulty=question_id[0].upper())
             question.save()
         if not question in team.burned_questions.all():
-            team.balance += self.calculate_payout(question)
+            payout = self.calculate_payout(question)
+            team.balance += payout
             question.solve_count += 1
             team.burned_questions.add(question)
             question.save()
             team.save()
+            message = 'Success, you earned {}'.format(payout)
         else:
             message = 'Question already burned'
         return message
